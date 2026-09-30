@@ -1,0 +1,496 @@
+{
+  "$defs": {
+    "compare": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "value"
+            },
+            "value": {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "value"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "longWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "lookback": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "metric": {
+              "enum": [
+                "price",
+                "moving-average",
+                "exponential-moving-average",
+                "cumulative-return",
+                "moving-average-return",
+                "rsi",
+                "max-drawdown",
+                "standard-deviation-return",
+                "standard-deviation-price",
+                "ppo",
+                "ppo-signal"
+              ]
+            },
+            "shortWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "smoothWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "ticker": {
+              "type": "string"
+            },
+            "type": {
+              "const": "indicator"
+            }
+          },
+          "required": [
+            "type",
+            "ticker",
+            "metric"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "node": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "percent": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "ticker": {
+              "type": "string"
+            },
+            "type": {
+              "const": "asset"
+            }
+          },
+          "required": [
+            "type",
+            "ticker"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "children": {
+              "items": {
+                "$ref": "#/$defs/node"
+              },
+              "maxItems": 1000,
+              "minItems": 1,
+              "type": "array"
+            },
+            "name": {
+              "type": "string"
+            },
+            "percent": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": {
+              "const": "group"
+            }
+          },
+          "required": [
+            "type",
+            "name",
+            "children"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "children": {
+              "items": {
+                "$ref": "#/$defs/node"
+              },
+              "maxItems": 1000,
+              "minItems": 1,
+              "type": "array"
+            },
+            "lookback": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "method": {
+              "enum": [
+                "equal",
+                "inverse-volatility",
+                "specified"
+              ]
+            },
+            "percent": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": {
+              "const": "weight"
+            }
+          },
+          "required": [
+            "type",
+            "method",
+            "children"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "children": {
+              "items": {
+                "$ref": "#/$defs/node"
+              },
+              "maxItems": 1000,
+              "minItems": 1,
+              "type": "array"
+            },
+            "count": {
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "direction": {
+              "enum": [
+                "top",
+                "bottom"
+              ]
+            },
+            "lookback": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "metric": {
+              "enum": [
+                "moving-average",
+                "exponential-moving-average",
+                "cumulative-return",
+                "moving-average-return",
+                "rsi",
+                "max-drawdown",
+                "standard-deviation-return",
+                "standard-deviation-price"
+              ]
+            },
+            "percent": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": {
+              "const": "filter"
+            }
+          },
+          "required": [
+            "type",
+            "direction",
+            "count",
+            "metric",
+            "lookback",
+            "children"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "comparator": {
+              "enum": [
+                "gt",
+                "gte",
+                "eq",
+                "lte",
+                "lt"
+              ]
+            },
+            "compare": {
+              "$ref": "#/$defs/compare"
+            },
+            "else": {
+              "items": {
+                "$ref": "#/$defs/node"
+              },
+              "maxItems": 1000,
+              "minItems": 1,
+              "type": "array"
+            },
+            "longWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "lookback": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "metric": {
+              "enum": [
+                "price",
+                "moving-average",
+                "exponential-moving-average",
+                "cumulative-return",
+                "moving-average-return",
+                "rsi",
+                "max-drawdown",
+                "standard-deviation-return",
+                "standard-deviation-price",
+                "ppo",
+                "ppo-signal"
+              ]
+            },
+            "percent": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "shortWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "smoothWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "then": {
+              "items": {
+                "$ref": "#/$defs/node"
+              },
+              "maxItems": 1000,
+              "minItems": 1,
+              "type": "array"
+            },
+            "ticker": {
+              "type": "string"
+            },
+            "type": {
+              "const": "condition"
+            }
+          },
+          "required": [
+            "type",
+            "ticker",
+            "metric",
+            "comparator",
+            "compare",
+            "then",
+            "else"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "else": {
+              "items": {
+                "$ref": "#/$defs/node"
+              },
+              "maxItems": 1000,
+              "minItems": 1,
+              "type": "array"
+            },
+            "percent": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "predicate": {
+              "$ref": "#/$defs/predicate"
+            },
+            "then": {
+              "items": {
+                "$ref": "#/$defs/node"
+              },
+              "maxItems": 1000,
+              "minItems": 1,
+              "type": "array"
+            },
+            "type": {
+              "const": "condition"
+            }
+          },
+          "required": [
+            "type",
+            "predicate",
+            "then",
+            "else"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "predicate": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "comparator": {
+              "enum": [
+                "gt",
+                "gte",
+                "eq",
+                "lte",
+                "lt"
+              ]
+            },
+            "compare": {
+              "$ref": "#/$defs/compare"
+            },
+            "longWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "lookback": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "metric": {
+              "enum": [
+                "price",
+                "moving-average",
+                "exponential-moving-average",
+                "cumulative-return",
+                "moving-average-return",
+                "rsi",
+                "max-drawdown",
+                "standard-deviation-return",
+                "standard-deviation-price",
+                "ppo",
+                "ppo-signal"
+              ]
+            },
+            "shortWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "smoothWindow": {
+              "maximum": 2520,
+              "minimum": 2,
+              "type": "integer"
+            },
+            "ticker": {
+              "type": "string"
+            },
+            "type": {
+              "const": "comparison"
+            }
+          },
+          "required": [
+            "type",
+            "ticker",
+            "metric",
+            "comparator",
+            "compare"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "conditions": {
+              "items": {
+                "$ref": "#/$defs/predicate"
+              },
+              "maxItems": 31,
+              "minItems": 1,
+              "type": "array"
+            },
+            "type": {
+              "enum": [
+                "any",
+                "all"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "conditions"
+          ],
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "benchmark": {
+      "type": "string"
+    },
+    "corridor": {
+      "maximum": 50,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "description": {
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 80,
+      "type": "string"
+    },
+    "rebalance": {
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "yearly",
+        "threshold"
+      ]
+    },
+    "root": {
+      "items": {
+        "$ref": "#/$defs/node"
+      },
+      "maxItems": 1000,
+      "minItems": 1,
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "rebalance",
+    "benchmark",
+    "root"
+  ],
+  "type": "object"
+}

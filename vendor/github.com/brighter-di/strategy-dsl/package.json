@@ -1,0 +1,27 @@
+{
+  "name": "@brighter-di/strategy-dsl",
+  "version": "0.3.3",
+  "description": "Brighter strategy DSL for Go and WebAssembly",
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": { "type": "git", "url": "git+https://github.com/brighter-di/strategy-dsl.git" },
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.mjs", "default": "./dist/index.mjs" },
+    "./strategy-dsl.wasm": "./dist/strategy-dsl.wasm",
+    "./wasm_exec.js": "./dist/wasm_exec.js",
+    "./language": "./internal/spec/strategy-language.json"
+  },
+  "files": ["dist", "internal/spec/strategy-language.json", "README.md", "CHANGELOG.md", "LICENSE", "THIRD_PARTY_NOTICES.md"],
+  "scripts": {
+    "build": "node scripts/build-wasm.mjs",
+    "test": "node --test web/*.test.mjs",
+    "typecheck": "tsc --noEmit --strict --module nodenext --moduleResolution nodenext --target es2022 --lib es2022,dom web/types-check.ts",
+    "check": "make check",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "engines": { "node": ">=22" }
+}

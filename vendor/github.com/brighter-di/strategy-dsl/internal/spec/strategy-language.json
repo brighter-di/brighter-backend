@@ -1,0 +1,365 @@
+{
+  "version": 1,
+  "limits": {
+    "minLookback": 2,
+    "maxLookback": 2520,
+    "minCorridor": 1,
+    "maxCorridor": 50,
+    "minPercent": 1,
+    "maxPercent": 100,
+    "maxCount": 50,
+    "maxDepth": 20,
+    "maxList": 1000,
+    "maxBlocks": 2000,
+    "maxConditionParts": 32,
+    "maxExpandedBlocks": 6000,
+    "maxName": 80,
+    "maxValue": 1000000
+  },
+  "indentWidth": 2,
+  "nodeKinds": [
+    "asset",
+    "group",
+    "weight",
+    "filter",
+    "condition"
+  ],
+  "weightMethods": [
+    "equal",
+    "inverse-volatility",
+    "specified"
+  ],
+  "rebalances": [
+    "daily",
+    "weekly",
+    "monthly",
+    "quarterly",
+    "yearly",
+    "threshold"
+  ],
+  "comparators": [
+    {
+      "name": "gt",
+      "code": ">",
+      "label": "Above"
+    },
+    {
+      "name": "gte",
+      "code": ">=",
+      "label": "At or above"
+    },
+    {
+      "name": "eq",
+      "code": "=",
+      "label": "Equal to"
+    },
+    {
+      "name": "lte",
+      "code": "<=",
+      "label": "At or below"
+    },
+    {
+      "name": "lt",
+      "code": "<",
+      "label": "Below"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "price",
+      "code": "price",
+      "label": "Current price",
+      "description": "Latest close.",
+      "windows": "none",
+      "backtestEngine": "current-price",
+      "exampleLookback": 200
+    },
+    {
+      "name": "moving-average",
+      "code": "moving_average",
+      "label": "Moving average",
+      "description": "Simple moving average of the close.",
+      "windows": "lookback",
+      "backtestEngine": "moving-average-price",
+      "exampleLookback": 200
+    },
+    {
+      "name": "exponential-moving-average",
+      "code": "ema",
+      "label": "Exponential moving average",
+      "description": "Exponential moving average of the close.",
+      "windows": "lookback",
+      "backtestEngine": "exponential-moving-average-price",
+      "exampleLookback": 50
+    },
+    {
+      "name": "cumulative-return",
+      "code": "return",
+      "label": "Return",
+      "description": "Total return over the lookback.",
+      "windows": "lookback",
+      "backtestEngine": "cumulative-return",
+      "exampleLookback": 126
+    },
+    {
+      "name": "moving-average-return",
+      "code": "return_average",
+      "label": "Average return",
+      "description": "Average daily return over the lookback.",
+      "windows": "lookback",
+      "backtestEngine": "moving-average-return",
+      "exampleLookback": 20
+    },
+    {
+      "name": "rsi",
+      "code": "rsi",
+      "label": "RSI",
+      "description": "Relative strength index (0 to 100).",
+      "windows": "lookback",
+      "backtestEngine": "relative-strength-index",
+      "exampleLookback": 14
+    },
+    {
+      "name": "max-drawdown",
+      "code": "drawdown",
+      "label": "Max drawdown",
+      "description": "Deepest fall from a peak.",
+      "windows": "lookback",
+      "backtestEngine": "max-drawdown",
+      "exampleLookback": 60
+    },
+    {
+      "name": "standard-deviation-return",
+      "code": "volatility",
+      "label": "Volatility of returns",
+      "description": "Standard deviation of daily returns.",
+      "windows": "lookback",
+      "backtestEngine": "standard-deviation-return",
+      "exampleLookback": 30
+    },
+    {
+      "name": "standard-deviation-price",
+      "code": "price_volatility",
+      "label": "Volatility of price",
+      "description": "Standard deviation of the price.",
+      "windows": "lookback",
+      "backtestEngine": "standard-deviation-price",
+      "exampleLookback": 30
+    },
+    {
+      "name": "ppo",
+      "code": "ppo",
+      "label": "Price oscillator",
+      "description": "Gap between two moving averages, in percent.",
+      "windows": "oscillator",
+      "backtestEngine": "percentage-price-oscillator",
+      "exampleLookback": 200
+    },
+    {
+      "name": "ppo-signal",
+      "code": "ppo_signal",
+      "label": "Price oscillator signal",
+      "description": "The oscillator's smoothed signal line.",
+      "windows": "signal",
+      "backtestEngine": "percentage-price-oscillator-signal",
+      "exampleLookback": 200
+    }
+  ],
+  "comparisonFields": [
+    "ticker",
+    "metric",
+    "lookback",
+    "shortWindow",
+    "longWindow",
+    "smoothWindow",
+    "comparator",
+    "compareMode",
+    "value",
+    "rightMetric",
+    "rightTicker",
+    "rightLookback",
+    "rightShortWindow",
+    "rightLongWindow",
+    "rightSmoothWindow"
+  ],
+  "transportFields": [
+    {
+      "name": "kind",
+      "type": "NodeKind",
+      "goType": "string"
+    },
+    {
+      "name": "type",
+      "type": "\"comparison\" | \"any\" | \"all\"",
+      "goType": "string"
+    },
+    {
+      "name": "conditions",
+      "type": "ConditionExpression[]",
+      "goType": "[]CustomNode"
+    },
+    {
+      "name": "predicate",
+      "type": "ConditionExpression",
+      "goType": "*CustomNode"
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "goType": "string"
+    },
+    {
+      "name": "method",
+      "type": "WeightMethod",
+      "goType": "string"
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "direction",
+      "type": "\"top\" | \"bottom\"",
+      "goType": "string"
+    },
+    {
+      "name": "percent",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "ticker",
+      "type": "string",
+      "goType": "string"
+    },
+    {
+      "name": "metric",
+      "type": "Metric",
+      "goType": "string"
+    },
+    {
+      "name": "lookback",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "shortWindow",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "longWindow",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "smoothWindow",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "comparator",
+      "type": "Comparator",
+      "goType": "string"
+    },
+    {
+      "name": "compareMode",
+      "type": "\"value\" | \"indicator\"",
+      "goType": "string"
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "goType": "float64"
+    },
+    {
+      "name": "rightMetric",
+      "type": "Metric",
+      "goType": "string"
+    },
+    {
+      "name": "rightTicker",
+      "type": "string",
+      "goType": "string"
+    },
+    {
+      "name": "rightLookback",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "rightShortWindow",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "rightLongWindow",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "rightSmoothWindow",
+      "type": "number",
+      "goType": "int"
+    },
+    {
+      "name": "children",
+      "type": "StrategyNode[]",
+      "goType": "[]CustomNode"
+    },
+    {
+      "name": "thenChildren",
+      "type": "StrategyNode[]",
+      "goType": "[]CustomNode"
+    },
+    {
+      "name": "elseChildren",
+      "type": "StrategyNode[]",
+      "goType": "[]CustomNode"
+    }
+  ],
+  "headers": [
+    "STRATEGY",
+    "REBALANCE",
+    "BENCHMARK"
+  ],
+  "blockKeywords": [
+    "BUY",
+    "GROUP",
+    "WEIGHT",
+    "SELECT",
+    "IF",
+    "ELSE",
+    "END"
+  ],
+  "grammar": "LANGUAGE REFERENCE. The editor holds Studio pseudocode. Keywords are upper case. One block per line; children are indented {{indentWidth}} spaces. There are no comments, variables or other commands.\nHeaders appear at most once at the top level:\nSTRATEGY \"Name\" (a JSON-escaped string)\nREBALANCE {{calendarRebalances}}\nREBALANCE threshold (N%) (rebalance when a holding drifts N% from its target)\nBENCHMARK TICKER\nBlocks:\nBUY TICKER holds one asset and has no children.\nGROUP \"Name\" groups blocks without changing the rules.\nWEIGHT equally splits capital evenly.\nWEIGHT by inverse volatility (N days) gives more capital to less volatile children.\nWEIGHT by percentage uses each child's suffix, e.g. BUY AAPL (60%). Shares are whole numbers {{limits.minPercent}}-{{limits.maxPercent}} and add up to {{limits.maxPercent}}%.\nSELECT top N BY MEASURE (L days) or SELECT bottom N BY MEASURE (L days) ranks its children by a one-lookback metric, retaining the highest or lowest N. N should not exceed the pool size. When SELECT has a single WEIGHT child, rank that weight's children and apply its method to the selected candidates. Inverse-volatility and percentage weighting of a selection require asset candidates. Percentage shares are renormalized among the selected assets, keeping their proportions. WEIGHT by inverse volatility with a sole SELECT child applies inverse-volatility weights to that selection's asset candidates. Weighted selection breaks ties by source order and must fit the expanded-block limit; reduce the pool or use equal weighting if it does not fit. To rank a whole basket as one candidate, wrap it in GROUP.\nIF MEASURE COMPARATOR MEASURE_OR_NUMBER\n  BLOCKS\nELSE\n  BLOCKS\nEND\nELSE and END align with IF. Both branches need blocks. IF can nest. Comparisons: {{comparisonCodes}}. ANY(comparison, comparison) means at least one is true; ALL(comparison, comparison) means every one is true. These can nest.\nExample: IF ALL(price(SPY) > moving_average(SPY, 200 days), ANY(rsi(QQQ, 14 days) < 70, return(SPY, 20 days) > 0)).\n{{measureReference}}\nLimits: all lookbacks and oscillator windows are {{limits.minLookback}}-{{limits.maxLookback}} whole days; shortWindow < longWindow. SELECT keeps 1-{{limits.maxCount}} blocks. Threshold corridor is a whole {{limits.minCorridor}}-{{limits.maxCorridor}} percent. At most {{limits.maxList}} blocks per list, {{limits.maxBlocks}} source blocks, {{limits.maxDepth}} block levels (root is level 1), {{limits.maxConditionParts}} predicate parts, and {{limits.maxExpandedBlocks}} blocks after lowering combined conditions. No empty lists or ANY/ALL groups. Fixed comparison values are between -{{limits.maxValue}} and {{limits.maxValue}}. Tickers come from the allowed list.\nJSON mapping:\nBUY -> type asset. GROUP -> type group with name and children.\nWEIGHT -> type weight with method equal, inverse-volatility or specified and children; inverse-volatility reads lookback. Each child of specified weight has percent.\nSELECT -> type filter with direction top or bottom, count, metric, lookback and children.\nIF -> type condition with ticker, metric, comparator, compare, then and else; a combined condition instead has predicate.\ncompare is {\"type\":\"value\",\"value\":number} or {\"type\":\"indicator\",\"ticker\":TICKER,\"metric\":METRIC,...windows}.\npredicate is {\"type\":\"comparison\",...comparison fields} or {\"type\":\"any\"|\"all\",\"conditions\":[...predicates]}.\nMetrics use JSON names, not DSL spellings: {{metricMapping}}.\nWindowed metrics read lookback. Oscillators read shortWindow and longWindow, plus smoothWindow for ppo-signal. The same fields go inside compare for an indicator on the right.\nThe complete strategy has name, description, rebalance, corridor (threshold only), benchmark and root. All returned JSON must follow the schema below.\n",
+  "strategyFields": [
+    {
+      "name": "name",
+      "type": "string",
+      "goType": "string"
+    },
+    {
+      "name": "rebalance",
+      "type": "Rebalance",
+      "goType": "string"
+    },
+    {
+      "name": "corridor",
+      "type": "number",
+      "goType": "int",
+      "optional": true
+    },
+    {
+      "name": "benchmark",
+      "type": "string",
+      "goType": "string"
+    },
+    {
+      "name": "children",
+      "type": "StrategyNode[]",
+      "goType": "[]CustomNode"
+    }
+  ]
+}

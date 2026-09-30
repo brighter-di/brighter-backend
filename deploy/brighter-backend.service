@@ -1,0 +1,36 @@
+[Unit]
+Description=Brighter strategies backend (backtest engine research, portfolio engine portfolios)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/brighter-backend
+# Secrets live here (mode 600, root), not in Environment= lines — those are
+# readable by anyone who can run `systemctl show`.
+EnvironmentFile=/etc/brighter-backend/env
+# Non-secret settings.
+Environment=HOST=127.0.0.1 PORT=3200 LOG_FORMAT=json TRUST_PROXY=true
+ExecStart=/opt/brighter-backend/brighterd serve
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+
+# Hardening. The binary needs the network and nothing on disk but itself.
+DynamicUser=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

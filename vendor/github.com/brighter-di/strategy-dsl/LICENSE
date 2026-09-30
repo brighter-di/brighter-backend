@@ -1,0 +1,8 @@
+Copyright (c) 2026 Brighter. All rights reserved.
+
+This software is proprietary. No part of it may be copied, modified, distributed or
+used without written permission from Brighter.
+
+The WebAssembly build also contains the Go runtime and its JavaScript loader
+(wasm_exec.js), which are distributed under their own licence; see
+THIRD_PARTY_NOTICES.md.

@@ -1,0 +1,6005 @@
+[
+  {
+    "name": "select top 1 through equal weight",
+    "valid": true,
+    "code": "STRATEGY \"Dual momentum core\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 1 BY return (126 days)\n  WEIGHT equally\n    BUY QCOM\n    BUY SPY\n    BUY BIL",
+    "strategy": {
+      "name": "Dual momentum core",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "equal",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "select top 3 through equal weight",
+    "valid": true,
+    "code": "STRATEGY \"Dual momentum core\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 3 BY return (126 days)\n  WEIGHT equally\n    BUY QCOM\n    BUY SPY\n    BUY BIL",
+    "strategy": {
+      "name": "Dual momentum core",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 3,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "equal",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "quoted group and percentage weights",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE threshold (10%)\nBENCHMARK SPY\n\nWEIGHT by percentage\n  GROUP \"Core \\\"trend\\\"\" (60%)\n    BUY SPY\n  BUY QQQ (40%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "threshold",
+      "corridor": 10,
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "specified",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "group",
+              "name": "Core \"trend\"",
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                }
+              ],
+              "percent": 60
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100",
+              "percent": 40
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "nested any/all",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF ALL(price(SPY) > moving_average(SPY, 200 days), ANY(rsi(QQQ, 14 days) < 70, ppo(SPY, 12, 26) > ppo_signal(SPY, 12, 26, 9)))\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ],
+          "predicate": {
+            "type": "all",
+            "conditions": [
+              {
+                "type": "comparison",
+                "ticker": "SPY",
+                "metric": "price",
+                "lookback": 200,
+                "shortWindow": 12,
+                "longWindow": 26,
+                "smoothWindow": 9,
+                "comparator": "gt",
+                "value": 0,
+                "rightTicker": "SPY",
+                "rightMetric": "moving-average",
+                "rightLookback": 200,
+                "rightShortWindow": 12,
+                "rightLongWindow": 26,
+                "rightSmoothWindow": 9,
+                "compareMode": "indicator"
+              },
+              {
+                "type": "any",
+                "conditions": [
+                  {
+                    "type": "comparison",
+                    "ticker": "QQQ",
+                    "metric": "rsi",
+                    "lookback": 14,
+                    "shortWindow": 12,
+                    "longWindow": 26,
+                    "smoothWindow": 9,
+                    "comparator": "lt",
+                    "value": 70,
+                    "rightTicker": "SPY",
+                    "rightMetric": "moving-average",
+                    "rightLookback": 200,
+                    "rightShortWindow": 12,
+                    "rightLongWindow": 26,
+                    "rightSmoothWindow": 9,
+                    "compareMode": "value"
+                  },
+                  {
+                    "type": "comparison",
+                    "ticker": "SPY",
+                    "metric": "ppo",
+                    "lookback": 200,
+                    "shortWindow": 12,
+                    "longWindow": 26,
+                    "smoothWindow": 9,
+                    "comparator": "gt",
+                    "value": 0,
+                    "rightTicker": "SPY",
+                    "rightMetric": "ppo-signal",
+                    "rightLookback": 200,
+                    "rightShortWindow": 12,
+                    "rightLongWindow": 26,
+                    "rightSmoothWindow": 9,
+                    "compareMode": "indicator"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "inverse volatility",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by inverse volatility (2520 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "inverse-volatility",
+          "lookback": 2520,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid corridor",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE threshold (0%)\nBENCHMARK SPY\n\nBUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "threshold",
+      "corridor": 0,
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "asset",
+          "ticker": "SPY",
+          "name": "S&P 500"
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid zero share",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by percentage\n  BUY SPY (0%)\n  BUY QQQ (100%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "specified",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500",
+              "percent": 0
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100",
+              "percent": 100
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid total share",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by percentage\n  BUY SPY (61%)\n  BUY QQQ (40%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "specified",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500",
+              "percent": 61
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100",
+              "percent": 40
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "missing share",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by percentage\n  BUY SPY\n  BUY QQQ (40%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "specified",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100",
+              "percent": 40
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid lookback",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 1 BY return (2521 days)\n  BUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 2521,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid select count",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 51 BY return (90 days)\n  BUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 51,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 90,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid oscillator order",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF ppo(SPY, 26, 26) > 0\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "ppo",
+          "lookback": 200,
+          "shortWindow": 26,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "value",
+          "value": 0,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid fixed value",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price(SPY) > 1000001\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "value",
+          "value": 1000001,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "empty predicate",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF ANY()\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ],
+          "predicate": {
+            "type": "any",
+            "conditions": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "select top 1 through inverse volatility (63 days)",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 1 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "select top 1 through percentage",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 1 BY return (126 days)\n  WEIGHT by percentage\n    BUY QCOM (40%)\n    BUY SPY (35%)\n    BUY BIL (25%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "specified",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm",
+                  "percent": 40
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500",
+                  "percent": 35
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills",
+                  "percent": 25
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "select top 2 through inverse volatility (63 days)",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 2 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 2,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "select top 2 through percentage",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 2 BY return (126 days)\n  WEIGHT by percentage\n    BUY QCOM (40%)\n    BUY SPY (35%)\n    BUY BIL (25%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 2,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "specified",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm",
+                  "percent": 40
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500",
+                  "percent": 35
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills",
+                  "percent": 25
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "select top 3 through inverse volatility (63 days)",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 3 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 3,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "select top 3 through percentage",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 3 BY return (126 days)\n  WEIGHT by percentage\n    BUY QCOM (40%)\n    BUY SPY (35%)\n    BUY BIL (25%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 3,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "specified",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm",
+                  "percent": 40
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500",
+                  "percent": 35
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills",
+                  "percent": 25
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "inverse volatility of selected assets",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by inverse volatility (63 days)\n  SELECT top 2 BY return (126 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "inverse-volatility",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "filter",
+              "count": 2,
+              "direction": "top",
+              "metric": "cumulative-return",
+              "lookback": 126,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid weighted selection of groups",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 1 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    GROUP \"Basket\"\n      BUY QCOM\n    BUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "group",
+                  "name": "Basket",
+                  "children": [
+                    {
+                      "kind": "asset",
+                      "ticker": "QCOM",
+                      "name": "Qualcomm"
+                    }
+                  ]
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "group preserves its capital share",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nGROUP \"Core\"\n  BUY QCOM\n  BUY SPY\nBUY BIL",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "group",
+          "name": "Core",
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "QCOM",
+              "name": "Qualcomm"
+            },
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ]
+        },
+        {
+          "kind": "asset",
+          "ticker": "BIL",
+          "name": "US Treasury Bills"
+        }
+      ]
+    }
+  },
+  {
+    "name": "percentage condition retains branch allocation",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by percentage\n  IF price(SPY) > 0 (60%)\n    BUY QCOM\n  ELSE\n    BUY SPY\n    BUY QQQ\n  END\n  BUY BIL (40%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "specified",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "condition",
+              "ticker": "SPY",
+              "metric": "price",
+              "lookback": 200,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "value",
+              "value": 0,
+              "rightMetric": "moving-average",
+              "rightTicker": "SPY",
+              "rightLookback": 200,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                }
+              ],
+              "percent": 60
+            },
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills",
+              "percent": 40
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "mixed filter and asset sleeves",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT equally\n  SELECT top 2 BY return (126 days)\n    BUY QCOM\n    BUY SPY\n    BUY QQQ\n  BUY BIL",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "equal",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "filter",
+              "count": 2,
+              "direction": "top",
+              "metric": "cumulative-return",
+              "lookback": 126,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                }
+              ]
+            },
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "rank group baskets",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY volatility (30 days)\n  GROUP \"Core\"\n    BUY QCOM\n    BUY SPY\n  GROUP \"Defensive\"\n    BUY BIL\n    BUY TLT",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "standard-deviation-return",
+          "lookback": 30,
+          "children": [
+            {
+              "kind": "group",
+              "name": "Core",
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                }
+              ]
+            },
+            {
+              "kind": "group",
+              "name": "Defensive",
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TLT",
+                  "name": "iShares 20+ Year Treasury Bond ETF"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "inverse volatility of group sleeves",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by inverse volatility (63 days)\n  GROUP \"Core\"\n    BUY QCOM\n    BUY SPY\n  BUY BIL",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "inverse-volatility",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "group",
+              "name": "Core",
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                }
+              ]
+            },
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "percentage sleeve retains weighted selection",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by percentage\n  SELECT bottom 2 BY return (126 days) (60%)\n    WEIGHT by percentage\n      BUY QCOM (40%)\n      BUY SPY (35%)\n      BUY BIL (25%)\n  BUY QQQ (40%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "specified",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "filter",
+              "count": 2,
+              "direction": "bottom",
+              "metric": "cumulative-return",
+              "lookback": 126,
+              "children": [
+                {
+                  "kind": "weight",
+                  "method": "specified",
+                  "lookback": 63,
+                  "children": [
+                    {
+                      "kind": "asset",
+                      "ticker": "QCOM",
+                      "name": "Qualcomm",
+                      "percent": 40
+                    },
+                    {
+                      "kind": "asset",
+                      "ticker": "SPY",
+                      "name": "S&P 500",
+                      "percent": 35
+                    },
+                    {
+                      "kind": "asset",
+                      "ticker": "BIL",
+                      "name": "US Treasury Bills",
+                      "percent": 25
+                    }
+                  ]
+                }
+              ],
+              "percent": 60
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100",
+              "percent": 40
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "combined conditions retain multiple outcomes",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF ANY(price(SPY) >= 0, ALL(price(QQQ) <= 0, price(QCOM) = 0))\n  BUY SPY\n  BUY QQQ\nELSE\n  WEIGHT by percentage\n    BUY QCOM (70%)\n    BUY BIL (30%)\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "weight",
+              "method": "specified",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm",
+                  "percent": 70
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills",
+                  "percent": 30
+                }
+              ]
+            }
+          ],
+          "predicate": {
+            "type": "any",
+            "conditions": [
+              {
+                "type": "comparison",
+                "ticker": "SPY",
+                "metric": "price",
+                "lookback": 200,
+                "shortWindow": 12,
+                "longWindow": 26,
+                "smoothWindow": 9,
+                "comparator": "gte",
+                "value": 0,
+                "rightTicker": "SPY",
+                "rightMetric": "moving-average",
+                "rightLookback": 200,
+                "rightShortWindow": 12,
+                "rightLongWindow": 26,
+                "rightSmoothWindow": 9,
+                "compareMode": "value"
+              },
+              {
+                "type": "all",
+                "conditions": [
+                  {
+                    "type": "comparison",
+                    "ticker": "QQQ",
+                    "metric": "price",
+                    "lookback": 200,
+                    "shortWindow": 12,
+                    "longWindow": 26,
+                    "smoothWindow": 9,
+                    "comparator": "lte",
+                    "value": 0,
+                    "rightTicker": "SPY",
+                    "rightMetric": "moving-average",
+                    "rightLookback": 200,
+                    "rightShortWindow": 12,
+                    "rightLongWindow": 26,
+                    "rightSmoothWindow": 9,
+                    "compareMode": "value"
+                  },
+                  {
+                    "type": "comparison",
+                    "ticker": "QCOM",
+                    "metric": "price",
+                    "lookback": 200,
+                    "shortWindow": 12,
+                    "longWindow": 26,
+                    "smoothWindow": 9,
+                    "comparator": "eq",
+                    "value": 0,
+                    "rightTicker": "SPY",
+                    "rightMetric": "moving-average",
+                    "rightLookback": 200,
+                    "rightShortWindow": 12,
+                    "rightLongWindow": 26,
+                    "rightSmoothWindow": 9,
+                    "compareMode": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "duplicate holdings across sleeves",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by percentage\n  GROUP \"Core\" (60%)\n    BUY SPY\n    BUY QQQ\n  BUY SPY (40%)",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "specified",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "group",
+              "name": "Core",
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                }
+              ],
+              "percent": 60
+            },
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500",
+              "percent": 40
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "alternate benchmark",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK QQQ\n\nBUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "QQQ",
+      "children": [
+        {
+          "kind": "asset",
+          "ticker": "SPY",
+          "name": "S&P 500"
+        }
+      ]
+    }
+  },
+  {
+    "name": "template ondo-bnb-momentum",
+    "valid": true,
+    "code": "STRATEGY \"BNB Chain momentum\"\nREBALANCE weekly\nBENCHMARK SPY\n\nWEIGHT equally\n  SELECT top 5 BY return (90 days)\n    BUY AAL\n    BUY AAOI\n    BUY AAON\n    BUY AAPL\n    BUY ABBV\n    BUY ABNB\n    BUY ABT\n    BUY ACHR\n    BUY ACLS\n    BUY ACMR\n    BUY ACN\n    BUY ADBE\n    BUY ADI\n    BUY AEHR\n    BUY AGG\n    BUY AG\n    BUY AI\n    BUY AIP\n    BUY AIQ\n    BUY ALAB\n    BUY ALB\n    BUY ALOY\n    BUY AMAT\n    BUY AMC\n    BUY AMD\n    BUY AME\n    BUY AMGN\n    BUY AMKR\n    BUY AMZN\n    BUY ANET\n    BUY AOSL\n    BUY APH\n    BUY APLD\n    BUY APO\n    BUY APP\n    BUY ARGT\n    BUY ARM\n    BUY ARQQ\n    BUY ASML\n    BUY ASTS\n    BUY ATKR\n    BUY AUR\n    BUY AVGO\n    BUY AXP\n    BUY AXTI\n    BUY BABA\n    BUY BAC\n    BUY BAI\n    BUY BA\n    BUY BBAI\n    BUY BE\n    BUY BIDU\n    BUY BILI\n    BUY BIL\n    BUY BINC\n    BUY BKCH\n    BUY BLCR\n    BUY BLK\n    BUY BLSH\n    BUY BMNR\n    BUY BNO\n    BUY BOT\n    BUY BOTZ\n    BUY BRHY\n    BUY BRLN\n    BUY BRTR\n    BUY BTDR\n    BUY BTG\n    BUY BTGO\n    BUY BWET\n    BUY BZ\n    BUY CAMT\n    BUY CAPR\n    BUY CAT\n    BUY CBRS\n    BUY CCJ\n    BUY CEG\n    BUY CEVA\n    BUY CIBR\n    BUY CIEN\n    BUY CIFR\n    BUY CLF\n    BUY CLOA\n    BUY CLOI\n    BUY CLS\n    BUY CMG\n    BUY COF\n    BUY COHR\n    BUY COHU\n    BUY COIN\n    BUY C\n    BUY COP\n    BUY COPX\n    BUY CORO\n    BUY CORZ\n    BUY COST\n    BUY CPER\n    BUY CPNG\n    BUY CRCL\n    BUY CRDO\n    BUY CRM\n    BUY CRWD\n    BUY CRWV\n    BUY CSCO\n    BUY CVNA\n    BUY CVX\n    BUY DASH\n    BUY DBC\n    BUY DELL\n    BUY DE\n    BUY DGRW\n    BUY DGXX\n    BUY DIS\n    BUY DNN\n    BUY DRAM\n    BUY DRS\n    BUY DTCR\n    BUY DYNF\n    BUY ECH\n    BUY ECO\n    BUY EEM\n    BUY EFA\n    BUY EFV\n    BUY EMR\n    BUY ENB\n    BUY ENLV\n    BUY ENPH\n    BUY ENTG\n    BUY EQIX\n    BUY EQT\n    BUY ETHA\n    BUY ETN\n    BUY EUHY\n    BUY EWJ\n    BUY EWY\n    BUY EWZ\n    BUY EXOD\n    BUY EXTR\n    BUY FCEL\n    BUY FCX\n    BUY FFOG\n    BUY FGDL\n    BUY FIG\n    BUY FIGR\n    BUY FLEX\n    BUY FLHY\n    BUY FLNC\n    BUY FLQL\n    BUY FN\n    BUY F\n    BUY FORM\n    BUY FPS\n    BUY FSOL\n    BUY FTGC\n    BUY FUTU\n    BUY FXI\n    BUY GD\n    BUY GEMI\n    BUY GE\n    BUY GEV\n    BUY GFS\n    BUY GGOV\n    BUY GLD\n    BUY GLTR\n    BUY GLW\n    BUY GLXY\n    BUY GME\n    BUY GNRC\n    BUY GOOGL\n    BUY GOOG\n    BUY GRAB\n    BUY GRND\n    BUY GS\n    BUY HAL\n    BUY HD\n    BUY HII\n    BUY HIMS\n    BUY HIMX\n    BUY HIVE\n    BUY HLIT\n    BUY HOOD\n    BUY HPE\n    BUY HSAI\n    BUY HTZ\n    BUY HUBB\n    BUY HUT\n    BUY HYDB\n    BUY HYG\n    BUY HYGW\n    BUY HYS\n    BUY IALT\n    BUY IAU\n    BUY IBIT\n    BUY IBM\n    BUY ICHR\n    BUY IDEF\n    BUY IEFA\n    BUY IEF\n    BUY IEI\n    BUY IEMG\n    BUY IGEB\n    BUY IGV\n    BUY IJH\n    BUY IJS\n    BUY INCE\n    BUY INDA\n    BUY INOD\n    BUY INRO\n    BUY INSW\n    BUY INTC\n    BUY INTU\n    BUY IONQ\n    BUY IRDM\n    BUY IREN\n    BUY ISRG\n    BUY ITA\n    BUY ITOT\n    BUY IVV\n    BUY IWF\n    BUY IWM\n    BUY IWN\n    BUY IYW\n    BUY JAAA\n    BUY JBL\n    BUY JD\n    BUY JNJ\n    BUY JPM\n    BUY KEEL\n    BUY KEYS\n    BUY KLAC\n    BUY KO\n    BUY KOPN\n    BUY KWEB\n    BUY LASR\n    BUY LECO\n    BUY LEMB\n    BUY LIN\n    BUY LI\n    BUY LITE\n    BUY LIT\n    BUY LLY\n    BUY LMT\n    BUY LOW\n    BUY LPTH\n    BUY LRCX\n    BUY LSCC\n    BUY LUNR\n    BUY LWLG\n    BUY MA\n    BUY MARA\n    BUY MBLY\n    BUY MCD\n    BUY MEI\n    BUY MELI\n    BUY META\n    BUY MKSI\n    BUY MP\n    BUY MRK\n    BUY MRNA\n    BUY MRVL\n    BUY MSFT\n    BUY MSTR\n    BUY MTSI\n    BUY MTZ\n    BUY MU\n    BUY MXL\n    BUY MYRG\n    BUY NAT\n    BUY NBIS\n    BUY NEAR\n    BUY NEE\n    BUY NEM\n    BUY NET\n    BUY NFLX\n    BUY NIKL\n    BUY NIO\n    BUY NKE\n    BUY NNE\n    BUY NOC\n    BUY NOK\n    BUY NOW\n    BUY NTES\n    BUY NUE\n    BUY NVDA\n    BUY NVMI\n    BUY NVO\n    BUY NVT\n    BUY NVTS\n    BUY OIH\n    BUY OII\n    BUY OKLO\n    BUY ONDS\n    BUY ON\n    BUY ONTO\n    BUY OPEN\n    BUY OPRA\n    BUY ORBX\n    BUY ORCL\n    BUY OSCR\n    BUY OUST\n    BUY OXY\n    BUY PALL\n    BUY PANW\n    BUY PAVE\n    BUY PBR\n    BUY PCG\n    BUY PDBC\n    BUY PDD\n    BUY PENG\n    BUY PEP\n    BUY PFE\n    BUY PG\n    BUY PINS\n    BUY PL\n    BUY PLTR\n    BUY PLUG\n    BUY POWI\n    BUY POWL\n    BUY PPLT\n    BUY PRIM\n    BUY PSQ\n    BUY PURR\n    BUY PWR\n    BUY PYPL\n    BUY QBTS\n    BUY QCOM\n    BUY QLTA\n    BUY QQQ\n    BUY QTUM\n    BUY QUBT\n    BUY QYLD\n    BUY RDDT\n    BUY RDW\n    BUY REGN\n    BUY REMX\n    BUY RGTI\n    BUY RIOT\n    BUY RIVN\n    BUY RKLB\n    BUY RMBS\n    BUY ROK\n    BUY RTX\n    BUY RXRX\n    BUY SAP\n    BUY SATA\n    BUY SBET\n    BUY SBUX\n    BUY SCCO\n    BUY SCHW\n    BUY SECU\n    BUY SEDG\n    BUY SGOV\n    BUY SHLD\n    BUY SHOP\n    BUY SHY\n    BUY SIL\n    BUY SKHY\n    BUY SLB\n    BUY SLV\n    BUY SMCI\n    BUY SMR\n    BUY SNAP\n    BUY SNDK\n    BUY SNOW\n    BUY SOFI\n    BUY SO\n    BUY SOUN\n    BUY SOXL\n    BUY SOXQ\n    BUY SOXS\n    BUY SOXX\n    BUY SPCX\n    BUY SPGI\n    BUY SPOT\n    BUY SPY\n    BUY SQQQ\n    BUY STLD\n    BUY STM\n    BUY STNG\n    BUY STRC\n    BUY STX\n    BUY SWKS\n    BUY SYM\n    BUY SYSB\n    BUY TASK\n    BUY TCOM\n    BUY TEL\n    BUY TEN\n    BUY TER\n    BUY TIP\n    BUY TLN\n    BUY TLT\n    BUY TM\n    BUY TMO\n    BUY TMUS\n    BUY TNK\n    BUY T\n    BUY TQQQ\n    BUY TSEM\n    BUY TSLA\n    BUY TSM\n    BUY TTMI\n    BUY TT\n    BUY TXN\n    BUY UAMY\n    BUY UBER\n    BUY UCTT\n    BUY UEC\n    BUY UMC\n    BUY UNG\n    BUY UNH\n    BUY UNP\n    BUY URA\n    BUY URNM\n    BUY USAR\n    BUY USFR\n    BUY USHY\n    BUY USO\n    BUY UUUU\n    BUY VCX\n    BUY VDE\n    BUY VFS\n    BUY VICR\n    BUY VNQ\n    BUY V\n    BUY VPG\n    BUY VRSN\n    BUY VRT\n    BUY VRTX\n    BUY VSH\n    BUY VST\n    BUY VTI\n    BUY VTV\n    BUY VZ\n    BUY WCC\n    BUY WDC\n    BUY WEN\n    BUY WFC\n    BUY WLK\n    BUY WMB\n    BUY WM\n    BUY WMT\n    BUY WOLF\n    BUY WS\n    BUY WULF\n    BUY WYFI\n    BUY XOM\n    BUY XYLD\n    BUY XYZ\n    BUY YEAR",
+    "strategy": {
+      "name": "BNB Chain momentum",
+      "rebalance": "weekly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "equal",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "filter",
+              "count": 5,
+              "direction": "top",
+              "metric": "cumulative-return",
+              "lookback": 90,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "AAL",
+                  "name": "American Airlines Group"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AAOI",
+                  "name": "Applied Optoelectronics"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AAON",
+                  "name": "AAON"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AAPL",
+                  "name": "Apple"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ABBV",
+                  "name": "AbbVie"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ABNB",
+                  "name": "Airbnb"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ABT",
+                  "name": "Abbott"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ACHR",
+                  "name": "Archer Aviation"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ACLS",
+                  "name": "Axcelis Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ACMR",
+                  "name": "ACM Research"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ACN",
+                  "name": "Accenture"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ADBE",
+                  "name": "Adobe"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ADI",
+                  "name": "Analog Devices"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AEHR",
+                  "name": "Aehr Test Systems"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AGG",
+                  "name": "iShares Core US Aggregate Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AG",
+                  "name": "First Majestic Silver"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AI",
+                  "name": "C3.ai"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AIP",
+                  "name": "Arteris"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AIQ",
+                  "name": "Global X Artificial Intelligence & Technology ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ALAB",
+                  "name": "Astera Labs"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ALB",
+                  "name": "Albemarle"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ALOY",
+                  "name": "REalloys"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AMAT",
+                  "name": "Applied Materials"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AMC",
+                  "name": "AMC Entertainment"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AMD",
+                  "name": "AMD"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AME",
+                  "name": "AMETEK"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AMGN",
+                  "name": "Amgen"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AMKR",
+                  "name": "Amkor Technology"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AMZN",
+                  "name": "Amazon"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ANET",
+                  "name": "Arista Networks"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AOSL",
+                  "name": "Alpha and Omega Semiconductor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "APH",
+                  "name": "Amphenol"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "APLD",
+                  "name": "Applied Digital"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "APO",
+                  "name": "Apollo Global Management"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "APP",
+                  "name": "AppLovin"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ARGT",
+                  "name": "Global X MSCI Argentina ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ARM",
+                  "name": "Arm Holdings plc"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ARQQ",
+                  "name": "Arqit Quantum"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ASML",
+                  "name": "ASML Holding NV"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ASTS",
+                  "name": "AST SpaceMobile"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ATKR",
+                  "name": "Atkore"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AUR",
+                  "name": "Aurora Innovation"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AVGO",
+                  "name": "Broadcom"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AXP",
+                  "name": "American Express"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AXTI",
+                  "name": "AXT"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BABA",
+                  "name": "Alibaba"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BAC",
+                  "name": "Bank of America"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BAI",
+                  "name": "iShares A.I. Innovation and Tech Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BA",
+                  "name": "Boeing"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BBAI",
+                  "name": "BigBear.ai Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BE",
+                  "name": "Bloom Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIDU",
+                  "name": "Baidu"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BILI",
+                  "name": "Bilibili"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BINC",
+                  "name": "iShares Flexible Income Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BKCH",
+                  "name": "Global X Blockchain ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BLCR",
+                  "name": "iShares Large Cap Core Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BLK",
+                  "name": "Blackrock, Inc."
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BLSH",
+                  "name": "Bullish"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BMNR",
+                  "name": "BitMine Immersion Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BNO",
+                  "name": "US Brent Oil Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BOT",
+                  "name": "RoboStrategy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BOTZ",
+                  "name": "Global X Robotics & Artificial Intelligence ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BRHY",
+                  "name": "iShares High Yield Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BRLN",
+                  "name": "iShares Floating Rate Loan Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BRTR",
+                  "name": "iShares Total Return Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BTDR",
+                  "name": "Bitdeer Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BTG",
+                  "name": "B2Gold"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BTGO",
+                  "name": "BitGo Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BWET",
+                  "name": "Breakwave Tanker Shipping ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BZ",
+                  "name": "Kanzhun"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CAMT",
+                  "name": "Camtek"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CAPR",
+                  "name": "Capricor Therapeutics"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CAT",
+                  "name": "Caterpillar"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CBRS",
+                  "name": "Cerebras Systems"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CCJ",
+                  "name": "Cameco"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CEG",
+                  "name": "Constellation Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CEVA",
+                  "name": "CEVA"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CIBR",
+                  "name": "First Trust NASDAQ Cybersecurity ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CIEN",
+                  "name": "Ciena"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CIFR",
+                  "name": "Cipher Mining"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CLF",
+                  "name": "Cleveland-Cliffs"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CLOA",
+                  "name": "iShares AAA CLO Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CLOI",
+                  "name": "VanEck CLO ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CLS",
+                  "name": "Celestica"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CMG",
+                  "name": "Chipotle"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "COF",
+                  "name": "Capital One"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "COHR",
+                  "name": "Coherent"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "COHU",
+                  "name": "Cohu"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "COIN",
+                  "name": "Coinbase"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "C",
+                  "name": "Citigroup"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "COP",
+                  "name": "ConocoPhillips"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "COPX",
+                  "name": "Global X Copper Miners ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CORO",
+                  "name": "iShares International Country Rotation Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CORZ",
+                  "name": "Core Scientific"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "COST",
+                  "name": "Costco"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CPER",
+                  "name": "US Copper Index Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CPNG",
+                  "name": "Coupang"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CRCL",
+                  "name": "Circle Internet Group"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CRDO",
+                  "name": "Credo Technology Group Holding"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CRM",
+                  "name": "Salesforce"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CRWD",
+                  "name": "CrowdStrike"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CRWV",
+                  "name": "CoreWeave"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CSCO",
+                  "name": "Cisco Systems"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CVNA",
+                  "name": "Carvana"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "CVX",
+                  "name": "Chevron"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DASH",
+                  "name": "DoorDash"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DBC",
+                  "name": "Invesco DB Commodity Index Tracking Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DELL",
+                  "name": "Dell Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DE",
+                  "name": "Deere"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DGRW",
+                  "name": "WisdomTree US Quality Dividend Growth Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DGXX",
+                  "name": "Digi Power X"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DIS",
+                  "name": "Disney"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DNN",
+                  "name": "Denison Mines"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DRAM",
+                  "name": "Roundhill Memory ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DRS",
+                  "name": "Leonardo DRS"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DTCR",
+                  "name": "Global X Data Center & Digital Infrastructure ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "DYNF",
+                  "name": "iShares US Equity Factor Rotation Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ECH",
+                  "name": "iShares MSCI Chile ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ECO",
+                  "name": "Okeanis Eco Tankers"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EEM",
+                  "name": "iShares MSCI Emerging Markets ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EFA",
+                  "name": "iShares MSCI EAFE ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EFV",
+                  "name": "iShares MSCI EAFE Value ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EMR",
+                  "name": "Emerson Electric"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ENB",
+                  "name": "Enbridge"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ENLV",
+                  "name": "Enlivex Therapeutics"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ENPH",
+                  "name": "Enphase Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ENTG",
+                  "name": "Entegris"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EQIX",
+                  "name": "Equinix"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EQT",
+                  "name": "EQT"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ETHA",
+                  "name": "iShares Ethereum Trust ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ETN",
+                  "name": "Eaton"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EUHY",
+                  "name": "iShares Euro High Yield Corporate Bond USD Hedged ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EWJ",
+                  "name": "iShares MSCI Japan ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EWY",
+                  "name": "iShares MSCI South Korea ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EWZ",
+                  "name": "iShares MSCI Brazil ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EXOD",
+                  "name": "Exodus Movement"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "EXTR",
+                  "name": "Extreme Networks"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FCEL",
+                  "name": "FuelCell Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FCX",
+                  "name": "Freeport-McMoRan"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FFOG",
+                  "name": "Franklin Focused Growth ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FGDL",
+                  "name": "Franklin Responsibly Sourced Gold ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FIG",
+                  "name": "Figma"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FIGR",
+                  "name": "Figure Technology Solutions"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FLEX",
+                  "name": "Flex"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FLHY",
+                  "name": "Franklin High Yield Corporate ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FLNC",
+                  "name": "Fluence Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FLQL",
+                  "name": "Franklin US Large Cap Multifactor Index ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FN",
+                  "name": "Fabrinet"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "F",
+                  "name": "Ford Motor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FORM",
+                  "name": "FormFactor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FPS",
+                  "name": "Forgent Power Solutions"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FSOL",
+                  "name": "Fidelity Solana Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FTGC",
+                  "name": "First Trust Global Tactical Commodity Strategy Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FUTU",
+                  "name": "Futu Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "FXI",
+                  "name": "iShares China Large-Cap ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GD",
+                  "name": "General Dynamics"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GEMI",
+                  "name": "Gemini Space Station"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GE",
+                  "name": "General Electric"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GEV",
+                  "name": "GE Vernova"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GFS",
+                  "name": "GlobalFoundries"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GGOV",
+                  "name": "iShares Global Government Bond USD Hedged Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GLD",
+                  "name": "SPDR Gold Shares"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GLTR",
+                  "name": "abrdn Physical Precious Metals Basket Shares ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GLW",
+                  "name": "Corning"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GLXY",
+                  "name": "Galaxy Digital"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GME",
+                  "name": "GameStop"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GNRC",
+                  "name": "Generac Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GOOGL",
+                  "name": "Alphabet"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GOOG",
+                  "name": "Alphabet Inc"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GRAB",
+                  "name": "Grab Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GRND",
+                  "name": "Grindr"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GS",
+                  "name": "Goldman Sachs"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HAL",
+                  "name": "Halliburton"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HD",
+                  "name": "Home Depot"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HII",
+                  "name": "Huntington Ingalls Industries"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HIMS",
+                  "name": "Hims & Hers Health"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HIMX",
+                  "name": "Himax Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HIVE",
+                  "name": "HIVE Digital Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HLIT",
+                  "name": "Harmonic"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HOOD",
+                  "name": "Robinhood Markets"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HPE",
+                  "name": "Hewlett Packard Enterprise"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HSAI",
+                  "name": "Hesai Group"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HTZ",
+                  "name": "Hertz Global Holdings, Inc."
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HUBB",
+                  "name": "Hubbell"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HUT",
+                  "name": "Hut 8"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HYDB",
+                  "name": "iShares High Yield Systematic Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HYG",
+                  "name": "iBoxx $ High Yield Corporate Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HYGW",
+                  "name": "iShares High Yield Corporate Bond BuyWrite Strategy ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "HYS",
+                  "name": "PIMCO 0-5 Year High Yield Corporate Bond Index ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IALT",
+                  "name": "iShares Systematic Alternatives Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IAU",
+                  "name": "iShares Gold Trust"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IBIT",
+                  "name": "iShares Bitcoin Trust ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IBM",
+                  "name": "IBM"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ICHR",
+                  "name": "Ichor Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IDEF",
+                  "name": "iShares Defense Industrials Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IEFA",
+                  "name": "iShares Core MSCI EAFE ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IEF",
+                  "name": "iShares 7-10 Year Treasury Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IEI",
+                  "name": "iShares 3-7 Year Treasury Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IEMG",
+                  "name": "iShares Core MSCI Emerging Markets ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IGEB",
+                  "name": "iShares Investment Grade Systematic Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IGV",
+                  "name": "iShares Expanded Tech-Software ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IJH",
+                  "name": "iShares Core S&P MidCap ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IJS",
+                  "name": "iShares S&P Small-Cap 600 Value ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "INCE",
+                  "name": "Franklin Income Equity Focus ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "INDA",
+                  "name": "iShares MSCI India ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "INOD",
+                  "name": "Innodata"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "INRO",
+                  "name": "iShares US Industry Rotation Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "INSW",
+                  "name": "International Seaways"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "INTC",
+                  "name": "Intel"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "INTU",
+                  "name": "Intuit"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IONQ",
+                  "name": "IonQ"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IRDM",
+                  "name": "Iridium Communications"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IREN",
+                  "name": "Iren"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ISRG",
+                  "name": "Intuitive Surgical"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ITA",
+                  "name": "iShares US Aerospace and Defense ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ITOT",
+                  "name": "iShares Core S&P Total US Stock Market ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IVV",
+                  "name": "iShares Core S&P 500 ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IWF",
+                  "name": "iShares Russell 1000 Growth ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IWM",
+                  "name": "iShares Russell 2000 ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IWN",
+                  "name": "iShares Russell 2000 Value ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "IYW",
+                  "name": "iShares US Technology ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "JAAA",
+                  "name": "Janus Henderson AAA CLO ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "JBL",
+                  "name": "Jabil"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "JD",
+                  "name": "JD.com"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "JNJ",
+                  "name": "Johnson & Johnson"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "JPM",
+                  "name": "JPMorgan Chase"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "KEEL",
+                  "name": "Keel Infrastructure"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "KEYS",
+                  "name": "Keysight Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "KLAC",
+                  "name": "KLA"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "KO",
+                  "name": "Coca-Cola"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "KOPN",
+                  "name": "Kopin"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "KWEB",
+                  "name": "KraneShares CSI China Internet ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LASR",
+                  "name": "nLIGHT"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LECO",
+                  "name": "Lincoln Electric"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LEMB",
+                  "name": "iShares J.P. Morgan EM Local Currency Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LIN",
+                  "name": "Linde plc"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LI",
+                  "name": "Li Auto"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LITE",
+                  "name": "Lumentum Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LIT",
+                  "name": "Global X Lithium & Battery Tech ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LLY",
+                  "name": "Eli Lilly"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LMT",
+                  "name": "Lockheed"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LOW",
+                  "name": "Lowe's"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LPTH",
+                  "name": "LightPath Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LRCX",
+                  "name": "Lam Research"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LSCC",
+                  "name": "Lattice Semiconductor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LUNR",
+                  "name": "Intuitive Machines"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "LWLG",
+                  "name": "Lightwave Logic"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MA",
+                  "name": "Mastercard"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MARA",
+                  "name": "MARA Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MBLY",
+                  "name": "Mobileye Global"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MCD",
+                  "name": "McDonald's"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MEI",
+                  "name": "Methode Electronics"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MELI",
+                  "name": "MercadoLibre"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "META",
+                  "name": "Meta"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MKSI",
+                  "name": "MKS Inc."
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MP",
+                  "name": "MP Materials"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MRK",
+                  "name": "Merck"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MRNA",
+                  "name": "Moderna"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MRVL",
+                  "name": "Marvell Technology"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MSFT",
+                  "name": "Microsoft"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MSTR",
+                  "name": "MicroStrategy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MTSI",
+                  "name": "MACOM Technology Solutions Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MTZ",
+                  "name": "MasTec"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MU",
+                  "name": "Micron Technology"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MXL",
+                  "name": "MaxLinear"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MYRG",
+                  "name": "MYR Group"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NAT",
+                  "name": "Nordic American Tankers"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NBIS",
+                  "name": "Nebius Group"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NEAR",
+                  "name": "iShares Short Duration Bond Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NEE",
+                  "name": "NextEra Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NEM",
+                  "name": "Newmont"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NET",
+                  "name": "Cloudflare"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NFLX",
+                  "name": "Netflix"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NIKL",
+                  "name": "Sprott Nickel Miners ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NIO",
+                  "name": "NIO"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NKE",
+                  "name": "Nike"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NNE",
+                  "name": "NANO Nuclear Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NOC",
+                  "name": "Northrop Grumman"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NOK",
+                  "name": "Nokia"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NOW",
+                  "name": "ServiceNow"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NTES",
+                  "name": "NetEase"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NUE",
+                  "name": "Nucor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NVDA",
+                  "name": "NVIDIA"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NVMI",
+                  "name": "Nova"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NVO",
+                  "name": "Novo Nordisk"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NVT",
+                  "name": "nVent Electric"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NVTS",
+                  "name": "Navitas Semiconductor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "OIH",
+                  "name": "VanEck Oil Services ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "OII",
+                  "name": "Oceaneering International"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "OKLO",
+                  "name": "Oklo"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ONDS",
+                  "name": "Ondas Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ON",
+                  "name": "ON Semiconductor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ONTO",
+                  "name": "Onto Innovation"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "OPEN",
+                  "name": "Opendoor Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "OPRA",
+                  "name": "Opera"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ORBX",
+                  "name": "Global X Space Tech ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ORCL",
+                  "name": "Oracle"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "OSCR",
+                  "name": "Oscar Health"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "OUST",
+                  "name": "Ouster"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "OXY",
+                  "name": "Occidental Petroleum"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PALL",
+                  "name": "abrdn Physical Palladium Shares ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PANW",
+                  "name": "Palo Alto Networks"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PAVE",
+                  "name": "Global X US Infrastructure Development ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PBR",
+                  "name": "Petrobras"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PCG",
+                  "name": "PG&E"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PDBC",
+                  "name": "Invesco Optimum Yld Dvsfd Cmd Str No K-1 ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PDD",
+                  "name": "PDD Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PENG",
+                  "name": "Penguin Solutions"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PEP",
+                  "name": "PepsiCo"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PFE",
+                  "name": "Pfizer"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PG",
+                  "name": "Procter & Gamble"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PINS",
+                  "name": "Pinterest"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PL",
+                  "name": "Planet Labs"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PLTR",
+                  "name": "Palantir Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PLUG",
+                  "name": "Plug Power"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "POWI",
+                  "name": "Power Integrations"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "POWL",
+                  "name": "Powell Industries"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PPLT",
+                  "name": "abrdn Physical Platinum Shares ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PRIM",
+                  "name": "Primoris Services"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PSQ",
+                  "name": "ProShares Short QQQ"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PURR",
+                  "name": "Hyperliquid Strategies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PWR",
+                  "name": "Quanta Services"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "PYPL",
+                  "name": "PayPal"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QBTS",
+                  "name": "D-Wave Quantum"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QLTA",
+                  "name": "iShares Aaa - A Rated Corporate Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QTUM",
+                  "name": "Defiance Quantum ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QUBT",
+                  "name": "Quantum Computing"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QYLD",
+                  "name": "Global X NASDAQ 100 Covered Call ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RDDT",
+                  "name": "Reddit"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RDW",
+                  "name": "Redwire"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "REGN",
+                  "name": "Regeneron Pharmaceuticals"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "REMX",
+                  "name": "VanEck Rare Earth and Strategic Metals ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RGTI",
+                  "name": "Rigetti Computing"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RIOT",
+                  "name": "Riot Platforms"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RIVN",
+                  "name": "Rivian Automotive"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RKLB",
+                  "name": "Rocket Lab"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RMBS",
+                  "name": "Rambus"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "ROK",
+                  "name": "Rockwell Automation"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RTX",
+                  "name": "RTX"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "RXRX",
+                  "name": "Recursion Pharmaceuticals, Inc."
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SAP",
+                  "name": "SAP"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SATA",
+                  "name": "Strive Preferred"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SBET",
+                  "name": "SharpLink Gaming, Inc"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SBUX",
+                  "name": "Starbucks"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SCCO",
+                  "name": "Southern Copper"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SCHW",
+                  "name": "Charles Schwab"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SECU",
+                  "name": "iShares Securitized Income Active ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SEDG",
+                  "name": "SolarEdge Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SGOV",
+                  "name": "iShares 0-3 Month Treasury Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SHLD",
+                  "name": "Global X Defense Tech ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SHOP",
+                  "name": "Shopify"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SHY",
+                  "name": "iShares 1-3 Year Treasury Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SIL",
+                  "name": "Global X Silver Miners ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SKHY",
+                  "name": "SK Hynix"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SLB",
+                  "name": "SLB"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SLV",
+                  "name": "iShares Silver Trust"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SMCI",
+                  "name": "Super Micro Computer"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SMR",
+                  "name": "NuScale Power"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SNAP",
+                  "name": "Snap"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SNDK",
+                  "name": "SanDisk"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SNOW",
+                  "name": "Snowflake"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SOFI",
+                  "name": "SoFi Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SO",
+                  "name": "Southern"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SOUN",
+                  "name": "SoundHound AI"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SOXL",
+                  "name": "Direxion Daily Semi Bull 3X ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SOXQ",
+                  "name": "Invesco PHLX Semiconductor ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SOXS",
+                  "name": "Direxion Daily Semi Bear 3X ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SOXX",
+                  "name": "iShares Semiconductor ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPCX",
+                  "name": "SpaceX"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPGI",
+                  "name": "S&P Global"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPOT",
+                  "name": "Spotify"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SQQQ",
+                  "name": "ProShares UltraPro Short QQQ"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "STLD",
+                  "name": "Steel Dynamics"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "STM",
+                  "name": "STMicroelectronics"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "STNG",
+                  "name": "Scorpio Tankers"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "STRC",
+                  "name": "Strategy Inc Variable Rate Series A Perpetual Stretch Preferred Stock"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "STX",
+                  "name": "Seagate"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SWKS",
+                  "name": "Skyworks Solutions"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SYM",
+                  "name": "Symbotic"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SYSB",
+                  "name": "iShares Systematic Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TASK",
+                  "name": "TaskUs"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TCOM",
+                  "name": "Trip.com Group"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TEL",
+                  "name": "TE Connectivity"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TEN",
+                  "name": "Tsakos Energy Navigation"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TER",
+                  "name": "Teradyne"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TIP",
+                  "name": "iShares TIPS Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TLN",
+                  "name": "Talen Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TLT",
+                  "name": "iShares 20+ Year Treasury Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TM",
+                  "name": "Toyota"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TMO",
+                  "name": "Thermo Fisher Scientific"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TMUS",
+                  "name": "T-Mobile US"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TNK",
+                  "name": "Teekay Tankers"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "T",
+                  "name": "AT&T"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TQQQ",
+                  "name": "ProShares UltraPro QQQ"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TSEM",
+                  "name": "Tower Semiconductor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TSLA",
+                  "name": "Tesla"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TSM",
+                  "name": "Taiwan Semiconductor Manufacturing"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TTMI",
+                  "name": "TTM Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TT",
+                  "name": "Trane Technologies"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TXN",
+                  "name": "Texas Instruments"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UAMY",
+                  "name": "United States Antimony"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UBER",
+                  "name": "Uber"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UCTT",
+                  "name": "Ultra Clean Holdings"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UEC",
+                  "name": "Uranium Energy"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UMC",
+                  "name": "United Microelectronics"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UNG",
+                  "name": "US Natural Gas Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UNH",
+                  "name": "UnitedHealth"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UNP",
+                  "name": "Union Pacific Corporation"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "URA",
+                  "name": "Global X Uranium ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "URNM",
+                  "name": "Sprott Uranium Miners ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "USAR",
+                  "name": "USA Rare Earth"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "USFR",
+                  "name": "WisdomTree Floating Rate Treasury Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "USHY",
+                  "name": "iShares Broad USD High Yield Corporate Bond ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "USO",
+                  "name": "United States Oil Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "UUUU",
+                  "name": "Energy Fuels"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VCX",
+                  "name": "Fundrise Innovation Fund"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VDE",
+                  "name": "Vanguard Energy ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VFS",
+                  "name": "VinFast Auto"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VICR",
+                  "name": "Vicor"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VNQ",
+                  "name": "Vanguard Real Estate ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "V",
+                  "name": "Visa"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VPG",
+                  "name": "Vishay Precision Group"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VRSN",
+                  "name": "VeriSign"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VRT",
+                  "name": "Vertiv"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VRTX",
+                  "name": "Vertex Pharmaceuticals"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VSH",
+                  "name": "Vishay Intertechnology"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VST",
+                  "name": "Vistra"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VTI",
+                  "name": "Vanguard Total Stock Market ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VTV",
+                  "name": "Vanguard Value ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "VZ",
+                  "name": "Verizon"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WCC",
+                  "name": "WESCO International"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WDC",
+                  "name": "Western Digital"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WEN",
+                  "name": "The Wendy's Company"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WFC",
+                  "name": "Wells Fargo"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WLK",
+                  "name": "Westlake"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WMB",
+                  "name": "Williams"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WM",
+                  "name": "Waste Management"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WMT",
+                  "name": "Walmart"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WOLF",
+                  "name": "Wolfspeed"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WS",
+                  "name": "Worthington Steel"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WULF",
+                  "name": "Terawulf"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "WYFI",
+                  "name": "WhiteFiber"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "XOM",
+                  "name": "Exxon Mobil"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "XYLD",
+                  "name": "Global X S&P 500 Covered Call ETF"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "XYZ",
+                  "name": "Block"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "YEAR",
+                  "name": "AB Ultra Short Income ETF"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "template trend-momentum",
+    "valid": true,
+    "code": "STRATEGY \"Momentum with a safety net\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price(SPY) > moving_average(SPY, 200 days)\n  WEIGHT equally\n    SELECT top 3 BY return (90 days)\n      BUY AAPL\n      BUY MSFT\n      BUY AMZN\n      BUY GOOGL\n      BUY META\nELSE\n  WEIGHT equally\n    BUY BIL\nEND",
+    "strategy": {
+      "name": "Momentum with a safety net",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "weight",
+              "method": "equal",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "filter",
+                  "count": 3,
+                  "direction": "top",
+                  "metric": "cumulative-return",
+                  "lookback": 90,
+                  "children": [
+                    {
+                      "kind": "asset",
+                      "ticker": "AAPL",
+                      "name": "Apple"
+                    },
+                    {
+                      "kind": "asset",
+                      "ticker": "MSFT",
+                      "name": "Microsoft"
+                    },
+                    {
+                      "kind": "asset",
+                      "ticker": "AMZN",
+                      "name": "Amazon"
+                    },
+                    {
+                      "kind": "asset",
+                      "ticker": "GOOGL",
+                      "name": "Alphabet"
+                    },
+                    {
+                      "kind": "asset",
+                      "ticker": "META",
+                      "name": "Meta"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "weight",
+              "method": "equal",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "template mag7-rank",
+    "valid": true,
+    "code": "STRATEGY \"Mag7 momentum rank\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT equally\n  SELECT top 3 BY return (126 days)\n    BUY AAPL\n    BUY MSFT\n    BUY AMZN\n    BUY GOOGL\n    BUY META\n    BUY NVDA\n    BUY TSLA",
+    "strategy": {
+      "name": "Mag7 momentum rank",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "equal",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "filter",
+              "count": 3,
+              "direction": "top",
+              "metric": "cumulative-return",
+              "lookback": 126,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "AAPL",
+                  "name": "Apple"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MSFT",
+                  "name": "Microsoft"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AMZN",
+                  "name": "Amazon"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GOOGL",
+                  "name": "Alphabet"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "META",
+                  "name": "Meta"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NVDA",
+                  "name": "NVIDIA"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TSLA",
+                  "name": "Tesla"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "template rsi-riskoff",
+    "valid": true,
+    "code": "STRATEGY \"RSI risk-off switch\"\nREBALANCE daily\nBENCHMARK SPY\n\nIF rsi(SPY, 14 days) > 70\n  WEIGHT equally\n    BUY BIL\nELSE\n  WEIGHT equally\n    BUY AAPL\n    BUY MSFT\n    BUY AMZN\n    BUY GOOGL\n    BUY META\n    BUY NVDA\n    BUY TSLA\nEND",
+    "strategy": {
+      "name": "RSI risk-off switch",
+      "rebalance": "daily",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "rsi",
+          "lookback": 14,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "value",
+          "value": 70,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "weight",
+              "method": "equal",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "weight",
+              "method": "equal",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "AAPL",
+                  "name": "Apple"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "MSFT",
+                  "name": "Microsoft"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "AMZN",
+                  "name": "Amazon"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "GOOGL",
+                  "name": "Alphabet"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "META",
+                  "name": "Meta"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "NVDA",
+                  "name": "NVIDIA"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "TSLA",
+                  "name": "Tesla"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "template dual-momentum",
+    "valid": true,
+    "code": "STRATEGY \"Dual momentum core\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF return(QQQ, 126 days) > return(SPY, 126 days)\n  IF return(QQQ, 126 days) > return(BIL, 126 days)\n    WEIGHT equally\n      BUY QQQ\n  ELSE\n    WEIGHT equally\n      BUY BIL\n  END\nELSE\n  IF return(SPY, 126 days) > return(BIL, 126 days)\n    WEIGHT equally\n      BUY SPY\n  ELSE\n    WEIGHT equally\n      BUY BIL\n  END\nEND",
+    "strategy": {
+      "name": "Dual momentum core",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "QQQ",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "cumulative-return",
+          "rightTicker": "SPY",
+          "rightLookback": 126,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "condition",
+              "ticker": "QQQ",
+              "metric": "cumulative-return",
+              "lookback": 126,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "cumulative-return",
+              "rightTicker": "BIL",
+              "rightLookback": 126,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "weight",
+                  "method": "equal",
+                  "lookback": 63,
+                  "children": [
+                    {
+                      "kind": "asset",
+                      "ticker": "QQQ",
+                      "name": "Nasdaq 100"
+                    }
+                  ]
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "weight",
+                  "method": "equal",
+                  "lookback": 63,
+                  "children": [
+                    {
+                      "kind": "asset",
+                      "ticker": "BIL",
+                      "name": "US Treasury Bills"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "condition",
+              "ticker": "SPY",
+              "metric": "cumulative-return",
+              "lookback": 126,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "cumulative-return",
+              "rightTicker": "BIL",
+              "rightLookback": 126,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "weight",
+                  "method": "equal",
+                  "lookback": 63,
+                  "children": [
+                    {
+                      "kind": "asset",
+                      "ticker": "SPY",
+                      "name": "S&P 500"
+                    }
+                  ]
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "weight",
+                  "method": "equal",
+                  "lookback": 63,
+                  "children": [
+                    {
+                      "kind": "asset",
+                      "ticker": "BIL",
+                      "name": "US Treasury Bills"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "template inverse-vol",
+    "valid": true,
+    "code": "STRATEGY \"Inverse volatility Mag7\"\nREBALANCE monthly\nBENCHMARK SPY\n\nWEIGHT by inverse volatility (63 days)\n  BUY AAPL\n  BUY MSFT\n  BUY AMZN\n  BUY GOOGL\n  BUY META\n  BUY NVDA\n  BUY TSLA",
+    "strategy": {
+      "name": "Inverse volatility Mag7",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "inverse-volatility",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "AAPL",
+              "name": "Apple"
+            },
+            {
+              "kind": "asset",
+              "ticker": "MSFT",
+              "name": "Microsoft"
+            },
+            {
+              "kind": "asset",
+              "ticker": "AMZN",
+              "name": "Amazon"
+            },
+            {
+              "kind": "asset",
+              "ticker": "GOOGL",
+              "name": "Alphabet"
+            },
+            {
+              "kind": "asset",
+              "ticker": "META",
+              "name": "Meta"
+            },
+            {
+              "kind": "asset",
+              "ticker": "NVDA",
+              "name": "NVIDIA"
+            },
+            {
+              "kind": "asset",
+              "ticker": "TSLA",
+              "name": "Tesla"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "template trend-filter",
+    "valid": true,
+    "code": "STRATEGY \"Trend filter Mag7\"\nREBALANCE weekly\nBENCHMARK SPY\n\nWEIGHT equally\n  IF price(AAPL) > moving_average(AAPL, 100 days)\n    BUY AAPL\n  ELSE\n    BUY BIL\n  END\n  IF price(MSFT) > moving_average(MSFT, 100 days)\n    BUY MSFT\n  ELSE\n    BUY BIL\n  END\n  IF price(AMZN) > moving_average(AMZN, 100 days)\n    BUY AMZN\n  ELSE\n    BUY BIL\n  END\n  IF price(GOOGL) > moving_average(GOOGL, 100 days)\n    BUY GOOGL\n  ELSE\n    BUY BIL\n  END\n  IF price(META) > moving_average(META, 100 days)\n    BUY META\n  ELSE\n    BUY BIL\n  END\n  IF price(NVDA) > moving_average(NVDA, 100 days)\n    BUY NVDA\n  ELSE\n    BUY BIL\n  END\n  IF price(TSLA) > moving_average(TSLA, 100 days)\n    BUY TSLA\n  ELSE\n    BUY BIL\n  END",
+    "strategy": {
+      "name": "Trend filter Mag7",
+      "rebalance": "weekly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "weight",
+          "method": "equal",
+          "lookback": 63,
+          "children": [
+            {
+              "kind": "condition",
+              "ticker": "AAPL",
+              "metric": "price",
+              "lookback": 200,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "moving-average",
+              "rightTicker": "AAPL",
+              "rightLookback": 100,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "AAPL",
+                  "name": "Apple"
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            },
+            {
+              "kind": "condition",
+              "ticker": "MSFT",
+              "metric": "price",
+              "lookback": 200,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "moving-average",
+              "rightTicker": "MSFT",
+              "rightLookback": 100,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "MSFT",
+                  "name": "Microsoft"
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            },
+            {
+              "kind": "condition",
+              "ticker": "AMZN",
+              "metric": "price",
+              "lookback": 200,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "moving-average",
+              "rightTicker": "AMZN",
+              "rightLookback": 100,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "AMZN",
+                  "name": "Amazon"
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            },
+            {
+              "kind": "condition",
+              "ticker": "GOOGL",
+              "metric": "price",
+              "lookback": 200,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "moving-average",
+              "rightTicker": "GOOGL",
+              "rightLookback": 100,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "GOOGL",
+                  "name": "Alphabet"
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            },
+            {
+              "kind": "condition",
+              "ticker": "META",
+              "metric": "price",
+              "lookback": 200,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "moving-average",
+              "rightTicker": "META",
+              "rightLookback": 100,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "META",
+                  "name": "Meta"
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            },
+            {
+              "kind": "condition",
+              "ticker": "NVDA",
+              "metric": "price",
+              "lookback": 200,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "moving-average",
+              "rightTicker": "NVDA",
+              "rightLookback": 100,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "NVDA",
+                  "name": "NVIDIA"
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            },
+            {
+              "kind": "condition",
+              "ticker": "TSLA",
+              "metric": "price",
+              "lookback": 200,
+              "shortWindow": 12,
+              "longWindow": 26,
+              "smoothWindow": 9,
+              "comparator": "gt",
+              "compareMode": "indicator",
+              "value": 0,
+              "rightMetric": "moving-average",
+              "rightTicker": "TSLA",
+              "rightLookback": 100,
+              "rightShortWindow": 12,
+              "rightLongWindow": 26,
+              "rightSmoothWindow": 9,
+              "thenChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "TSLA",
+                  "name": "Tesla"
+                }
+              ],
+              "elseChildren": [
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "weighted selection pool 4 count 2",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 2 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 2,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "weighted selection pool 6 count 3",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 3 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ\n    BUY QCOM\n    BUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 3,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "weighted selection pool 8 count 2",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 2 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 2,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "weighted selection pool 11 count 1",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 1 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ\n    BUY QCOM\n    BUY SPY\n    BUY BIL",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "weighted selection pool 12 count 1",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT top 1 BY return (126 days)\n  WEIGHT by inverse volatility (63 days)\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ\n    BUY QCOM\n    BUY SPY\n    BUY BIL\n    BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "top",
+          "metric": "cumulative-return",
+          "lookback": 126,
+          "children": [
+            {
+              "kind": "weight",
+              "method": "inverse-volatility",
+              "lookback": 63,
+              "children": [
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QCOM",
+                  "name": "Qualcomm"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "SPY",
+                  "name": "S&P 500"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "BIL",
+                  "name": "US Treasury Bills"
+                },
+                {
+                  "kind": "asset",
+                  "ticker": "QQQ",
+                  "name": "Nasdaq 100"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric price on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price(SPY) >= price(QQQ)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "price",
+          "rightTicker": "QQQ",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric moving-average on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF moving_average(SPY, 2520 days) >= moving_average(QQQ, 2520 days)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "moving-average",
+          "lookback": 2520,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "moving-average",
+          "rightTicker": "QQQ",
+          "rightLookback": 2520,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "ranking moving-average",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY moving_average (2 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "moving-average",
+          "lookback": 2,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric exponential-moving-average on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF ema(SPY, 2520 days) >= ema(QQQ, 2520 days)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "exponential-moving-average",
+          "lookback": 2520,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "exponential-moving-average",
+          "rightTicker": "QQQ",
+          "rightLookback": 2520,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "ranking exponential-moving-average",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY ema (2 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "exponential-moving-average",
+          "lookback": 2,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric cumulative-return on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF return(SPY, 2520 days) >= return(QQQ, 2520 days)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "cumulative-return",
+          "lookback": 2520,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "cumulative-return",
+          "rightTicker": "QQQ",
+          "rightLookback": 2520,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "ranking cumulative-return",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY return (2 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "cumulative-return",
+          "lookback": 2,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric moving-average-return on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF return_average(SPY, 2520 days) >= return_average(QQQ, 2520 days)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "moving-average-return",
+          "lookback": 2520,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "moving-average-return",
+          "rightTicker": "QQQ",
+          "rightLookback": 2520,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "ranking moving-average-return",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY return_average (2 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "moving-average-return",
+          "lookback": 2,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric rsi on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF rsi(SPY, 2520 days) >= rsi(QQQ, 2520 days)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "rsi",
+          "lookback": 2520,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "rsi",
+          "rightTicker": "QQQ",
+          "rightLookback": 2520,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "ranking rsi",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY rsi (2 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "rsi",
+          "lookback": 2,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric max-drawdown on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF drawdown(SPY, 2520 days) >= drawdown(QQQ, 2520 days)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "max-drawdown",
+          "lookback": 2520,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "max-drawdown",
+          "rightTicker": "QQQ",
+          "rightLookback": 2520,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "ranking max-drawdown",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY drawdown (2 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "max-drawdown",
+          "lookback": 2,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric standard-deviation-return on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF volatility(SPY, 2520 days) >= volatility(QQQ, 2520 days)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "standard-deviation-return",
+          "lookback": 2520,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "standard-deviation-return",
+          "rightTicker": "QQQ",
+          "rightLookback": 2520,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "ranking standard-deviation-return",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY volatility (2 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "standard-deviation-return",
+          "lookback": 2,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric standard-deviation-price on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price_volatility(SPY, 2520 days) >= price_volatility(QQQ, 2520 days)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "standard-deviation-price",
+          "lookback": 2520,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "standard-deviation-price",
+          "rightTicker": "QQQ",
+          "rightLookback": 2520,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "ranking standard-deviation-price",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nSELECT bottom 1 BY price_volatility (2 days)\n  BUY SPY\n  BUY QQQ",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "filter",
+          "count": 1,
+          "direction": "bottom",
+          "metric": "standard-deviation-price",
+          "lookback": 2,
+          "children": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            },
+            {
+              "kind": "asset",
+              "ticker": "QQQ",
+              "name": "Nasdaq 100"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric ppo on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF ppo(SPY, 12, 26) >= ppo(QQQ, 12, 26)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "ppo",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "ppo",
+          "rightTicker": "QQQ",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "metric ppo-signal on both sides",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF ppo_signal(SPY, 12, 26, 9) >= ppo_signal(QQQ, 12, 26, 9)\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "ppo-signal",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "indicator",
+          "value": 0,
+          "rightMetric": "ppo-signal",
+          "rightTicker": "QQQ",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "comparator gt",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price(SPY) > -1000000\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gt",
+          "compareMode": "value",
+          "value": -1000000,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "comparator gte",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price(SPY) >= -1000000\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "gte",
+          "compareMode": "value",
+          "value": -1000000,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "comparator eq",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price(SPY) = -1000000\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "eq",
+          "compareMode": "value",
+          "value": -1000000,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "comparator lte",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price(SPY) <= -1000000\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "lte",
+          "compareMode": "value",
+          "value": -1000000,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "comparator lt",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nIF price(SPY) < -1000000\n  BUY SPY\nELSE\n  BUY BIL\nEND",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "condition",
+          "ticker": "SPY",
+          "metric": "price",
+          "lookback": 200,
+          "shortWindow": 12,
+          "longWindow": 26,
+          "smoothWindow": 9,
+          "comparator": "lt",
+          "compareMode": "value",
+          "value": -1000000,
+          "rightMetric": "moving-average",
+          "rightTicker": "SPY",
+          "rightLookback": 200,
+          "rightShortWindow": 12,
+          "rightLongWindow": 26,
+          "rightSmoothWindow": 9,
+          "thenChildren": [
+            {
+              "kind": "asset",
+              "ticker": "SPY",
+              "name": "S&P 500"
+            }
+          ],
+          "elseChildren": [
+            {
+              "kind": "asset",
+              "ticker": "BIL",
+              "name": "US Treasury Bills"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "rebalance daily",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE daily\nBENCHMARK SPY\n\nBUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "daily",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "asset",
+          "ticker": "SPY",
+          "name": "S&P 500"
+        }
+      ]
+    }
+  },
+  {
+    "name": "rebalance weekly",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE weekly\nBENCHMARK SPY\n\nBUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "weekly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "asset",
+          "ticker": "SPY",
+          "name": "S&P 500"
+        }
+      ]
+    }
+  },
+  {
+    "name": "rebalance monthly",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nBUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "asset",
+          "ticker": "SPY",
+          "name": "S&P 500"
+        }
+      ]
+    }
+  },
+  {
+    "name": "rebalance quarterly",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE quarterly\nBENCHMARK SPY\n\nBUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "quarterly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "asset",
+          "ticker": "SPY",
+          "name": "S&P 500"
+        }
+      ]
+    }
+  },
+  {
+    "name": "rebalance yearly",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE yearly\nBENCHMARK SPY\n\nBUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "yearly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "asset",
+          "ticker": "SPY",
+          "name": "S&P 500"
+        }
+      ]
+    }
+  },
+  {
+    "name": "rebalance threshold",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE threshold (50%)\nBENCHMARK SPY\n\nBUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "threshold",
+      "corridor": 50,
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "asset",
+          "ticker": "SPY",
+          "name": "S&P 500"
+        }
+      ]
+    }
+  },
+  {
+    "name": "depth 20",
+    "valid": true,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nGROUP \"Level\"\n  GROUP \"Level\"\n    GROUP \"Level\"\n      GROUP \"Level\"\n        GROUP \"Level\"\n          GROUP \"Level\"\n            GROUP \"Level\"\n              GROUP \"Level\"\n                GROUP \"Level\"\n                  GROUP \"Level\"\n                    GROUP \"Level\"\n                      GROUP \"Level\"\n                        GROUP \"Level\"\n                          GROUP \"Level\"\n                            GROUP \"Level\"\n                              GROUP \"Level\"\n                                GROUP \"Level\"\n                                  GROUP \"Level\"\n                                    GROUP \"Level\"\n                                      BUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "group",
+          "name": "Level",
+          "children": [
+            {
+              "kind": "group",
+              "name": "Level",
+              "children": [
+                {
+                  "kind": "group",
+                  "name": "Level",
+                  "children": [
+                    {
+                      "kind": "group",
+                      "name": "Level",
+                      "children": [
+                        {
+                          "kind": "group",
+                          "name": "Level",
+                          "children": [
+                            {
+                              "kind": "group",
+                              "name": "Level",
+                              "children": [
+                                {
+                                  "kind": "group",
+                                  "name": "Level",
+                                  "children": [
+                                    {
+                                      "kind": "group",
+                                      "name": "Level",
+                                      "children": [
+                                        {
+                                          "kind": "group",
+                                          "name": "Level",
+                                          "children": [
+                                            {
+                                              "kind": "group",
+                                              "name": "Level",
+                                              "children": [
+                                                {
+                                                  "kind": "group",
+                                                  "name": "Level",
+                                                  "children": [
+                                                    {
+                                                      "kind": "group",
+                                                      "name": "Level",
+                                                      "children": [
+                                                        {
+                                                          "kind": "group",
+                                                          "name": "Level",
+                                                          "children": [
+                                                            {
+                                                              "kind": "group",
+                                                              "name": "Level",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "group",
+                                                                  "name": "Level",
+                                                                  "children": [
+                                                                    {
+                                                                      "kind": "group",
+                                                                      "name": "Level",
+                                                                      "children": [
+                                                                        {
+                                                                          "kind": "group",
+                                                                          "name": "Level",
+                                                                          "children": [
+                                                                            {
+                                                                              "kind": "group",
+                                                                              "name": "Level",
+                                                                              "children": [
+                                                                                {
+                                                                                  "kind": "group",
+                                                                                  "name": "Level",
+                                                                                  "children": [
+                                                                                    {
+                                                                                      "kind": "asset",
+                                                                                      "ticker": "SPY",
+                                                                                      "name": "S&P 500"
+                                                                                    }
+                                                                                  ]
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "depth 21",
+    "valid": false,
+    "code": "STRATEGY \"Untitled strategy\"\nREBALANCE monthly\nBENCHMARK SPY\n\nGROUP \"Level\"\n  GROUP \"Level\"\n    GROUP \"Level\"\n      GROUP \"Level\"\n        GROUP \"Level\"\n          GROUP \"Level\"\n            GROUP \"Level\"\n              GROUP \"Level\"\n                GROUP \"Level\"\n                  GROUP \"Level\"\n                    GROUP \"Level\"\n                      GROUP \"Level\"\n                        GROUP \"Level\"\n                          GROUP \"Level\"\n                            GROUP \"Level\"\n                              GROUP \"Level\"\n                                GROUP \"Level\"\n                                  GROUP \"Level\"\n                                    GROUP \"Level\"\n                                      GROUP \"Level\"\n                                        BUY SPY",
+    "strategy": {
+      "name": "Untitled strategy",
+      "rebalance": "monthly",
+      "benchmark": "SPY",
+      "children": [
+        {
+          "kind": "group",
+          "name": "Level",
+          "children": [
+            {
+              "kind": "group",
+              "name": "Level",
+              "children": [
+                {
+                  "kind": "group",
+                  "name": "Level",
+                  "children": [
+                    {
+                      "kind": "group",
+                      "name": "Level",
+                      "children": [
+                        {
+                          "kind": "group",
+                          "name": "Level",
+                          "children": [
+                            {
+                              "kind": "group",
+                              "name": "Level",
+                              "children": [
+                                {
+                                  "kind": "group",
+                                  "name": "Level",
+                                  "children": [
+                                    {
+                                      "kind": "group",
+                                      "name": "Level",
+                                      "children": [
+                                        {
+                                          "kind": "group",
+                                          "name": "Level",
+                                          "children": [
+                                            {
+                                              "kind": "group",
+                                              "name": "Level",
+                                              "children": [
+                                                {
+                                                  "kind": "group",
+                                                  "name": "Level",
+                                                  "children": [
+                                                    {
+                                                      "kind": "group",
+                                                      "name": "Level",
+                                                      "children": [
+                                                        {
+                                                          "kind": "group",
+                                                          "name": "Level",
+                                                          "children": [
+                                                            {
+                                                              "kind": "group",
+                                                              "name": "Level",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "group",
+                                                                  "name": "Level",
+                                                                  "children": [
+                                                                    {
+                                                                      "kind": "group",
+                                                                      "name": "Level",
+                                                                      "children": [
+                                                                        {
+                                                                          "kind": "group",
+                                                                          "name": "Level",
+                                                                          "children": [
+                                                                            {
+                                                                              "kind": "group",
+                                                                              "name": "Level",
+                                                                              "children": [
+                                                                                {
+                                                                                  "kind": "group",
+                                                                                  "name": "Level",
+                                                                                  "children": [
+                                                                                    {
+                                                                                      "kind": "group",
+                                                                                      "name": "Level",
+                                                                                      "children": [
+                                                                                        {
+                                                                                          "kind": "asset",
+                                                                                          "ticker": "SPY",
+                                                                                          "name": "S&P 500"
+                                                                                        }
+                                                                                      ]
+                                                                                    }
+                                                                                  ]
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
